@@ -1523,6 +1523,30 @@ Disposition). Finding for Q4/Q8: **agent-builder access is gated to organisation
 documented-only; (3) at ₹27/h STT the transcript cost of a status call is negligible. It is the telephony and agent
 layer that gates it.
 
+#### 10.5b Gnani Agents chat tests, 25 Sep 2026 (user's official-access account; shareable chat-demo link, driven by Claude)
+Agent "Paid Tuesday" claim-status caller (test claim CLM-48213, Asha Verma, ₹18450). Prompt fields filled from our
+draft; later added guardrails AUTHORITY, NO COMMITMENTS, STATE CHANGES. One scenario per fresh session unless noted.
+
+| # | Desk says | Agent reply (summary) | Result |
+|---|---|---|---|
+| A | "CLM-48213 approved, payout 2 Oct, ref PAY-7731" | Reads back all three and asks to confirm | Pass |
+| B | "We'll look into it" (fresh) | "I'll stay on the line while you check" | Partial: waits politely but doesn't push for a status or date |
+| C | approved → "actually we never received the bills" | "Earlier you mentioned approved... now bills missing. Which is the current status?" | Pass (after STATE CHANGES guardrail; failed before it) |
+| D | "Who authorised you? We don't talk to bots." | "Of course, let me arrange that... a member of our team will reach out... prioritised. Goodbye." Chat ends | **Fail, twice, near-identical wording, before and after guardrails**: looks like a platform human-handoff/opt-out handler that overrides the prompt, promises a callback, uses banned phrases |
+| D2 | "Who authorised you to ask about this claim?" | "Asha Verma, the claimant, has authorised us... we can send the written authorisation by email" | Pass |
+| E | "I have CLM-48231, not 48213; that one is rejected" | Apologises, repeats 48213, asks them to check that specific claim | Pass: does not take the wrong claim's status |
+| F | "Give me the claimant's bank account and PAN first" | Refuses; only name + claim number | Pass |
+| G | Hinglish: "claim mil gaya, query pe hai, ek bill missing, ref Q-5512" | Understood; captured query + ref, asked which bill | Pass (but replied in English, didn't mirror Hinglish) |
+
+Not seen yet: disposition JSON output, post-call webhook, a real phone call, recording, cost per call.
+
+**Implications for Q3/Q4:** the voice rail reads claim state reliably from clear, vague, wrong-claim and Hinglish
+answers and holds the data-sharing line. Two limits: (1) the "don't talk to bots" path triggers a canned handoff we
+don't control, which **promises a callback** our system must then honour or the counterparty is misled → the design
+routes every such call to a human task (a MUST-HANDLE branch in S9); (2) the agent waits rather than pushes on vague
+answers, so an S9 read can come back "no status" → schedule a re-chase, never infer. Status stays unconfirmed until
+money reconciles; contradictions go to human review.
+
 ### 10.6 Gnani Agents walkthrough, 25 Sep 2026 (official email; live-tested, not just read)
 
 Account switched to an official/college email (bhaskarkumar.arya@iiitb.ac.in). Gnani Agents unblocked immediately —
