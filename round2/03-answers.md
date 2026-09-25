@@ -23,19 +23,19 @@ Only one [CHECK] remains, and it sits in the Q4 table: whether Delhivery will ca
 
 ## Q1. Outcome (one sentence)
 
-For every bill a claimant forwards, Pehle is accountable for putting 70–95% of its policy-valid amount into their bank account within one working day of the claim packet passing our completeness check, and for closing the claim only when the employer's or insurer's payout has reconciled to the rupee against that advance and the balance has reached the claimant.
+For every bill a claimant forwards, our agent is accountable for putting 70–95% of its policy-valid amount into the claimant's bank account within one working day of the claim packet passing our completeness check, and for closing the claim only when the employer's or insurer's payout has reconciled to the rupee against that advance and the balance has reached the claimant.
 
 ---
 
 ## Q2. Level of autonomy
 
-**L3.** Pehle's most consequential act without asking anyone is moving money in two directions:
+**L3.** Our agent's most consequential act without asking anyone is moving money in two directions:
 1. **Paying out the advance** (up to the lending partner's per-claim and portfolio limits, and inside the band the claimant set at signup).
 2. **Debiting the claimant's salary account** under the recovery mandate they signed, once Account Aggregator shows the employer's or insurer's payout has landed with them. The debit comes after the mandatory 24-hour pre-debit notice and never exceeds what is owed on that claim.
 
 Both acts sit inside limits somebody else set: the lender sets credit limits, and the claimant sets the offer band and the mandate ceiling. That makes it L3.
 
-The paperwork side works like L4. Pehle plans the filing, chases for weeks, answers queries, checks its own work against the money (a desk saying "approved" does not count until the rupees reconcile), and is judged on the reconciled outcome. We still score the whole agent at L3, because the rubric scores the riskiest unasked act and we chose to keep the money under outside limits.
+The paperwork side works like L4. Our agent plans the filing, chases for weeks, answers queries, checks its own work against the money (a desk saying "approved" does not count until the rupees reconcile), and is judged on the reconciled outcome. We still score the whole agent at L3, because the rubric scores the riskiest unasked act and we chose to keep the money under outside limits.
 
 **Always goes to a human:**
 - writing off any amount
@@ -76,7 +76,7 @@ The counterparty is the employer's finance desk (the corporate expense wedge) or
 
 **Happy flow**
 
-| # | State | Entry | What Pehle does | Exit | Owner · timer |
+| # | State | Entry | What our agent does | Exit | Owner · timer |
 |---|---|---|---|---|---|
 | S0 | Onboard | Claimant signs up | KYC; bank account verified by penny drop plus name match; one purpose-bound grant to "file and chase claims in my name"; Account Aggregator consent (monitor purpose, credit filter on the salary account, held by our lending partner); recovery mandate (UPI AutoPay tied to the salary account); the claimant's auto-accept band; a low-weight address check | All objects active | Claimant, once |
 | S1 | Ingest | Consents active | Reads the forwarded expense inbox, WhatsApp-forwarded bills, and card/UPI debits via AA | Candidate expenses listed | Agent · continuous |
@@ -97,7 +97,7 @@ The counterparty is the employer's finance desk (the corporate expense wedge) or
 
 **Unhappy flow** (each has an entry, an action and an exit)
 
-| # | Entry | Pehle's action | Exit |
+| # | Entry | Our agent's action | Exit |
 |---|---|---|---|
 | U1 | S4: the claimant can't produce a document | Files only the part the documents support; states the gap in the filing | Smaller advance, or decline |
 | U2 | S3: over the cap or a policy mismatch | Advances only on the policy-valid part and tells the claimant which clause applies | S5 on the reduced amount |
@@ -107,7 +107,7 @@ The counterparty is the employer's finance desk (the corporate expense wedge) or
 | U6 | S2/S5: duplicate, double-dipping or doctored-bill signal | **Human review. No advance** | Human decides |
 | U7 | S9: vague answer ("we'll look into it") or no status | Records "no status", never infers one; schedules a re-chase in 3 working days; after 3 empty reads, writes to the desk head | S9 |
 | U8 | S9: a desk refuses to speak to an AI, or the call ends with a promised callback | Transfers live to our ops number with the transcript; if nobody answers, creates a **human task due the same working day**; emails the eSigned authorisation | Human speaks to the desk → S9 |
-| U8b | S9: an extracted field (reference no., date, amount) appears only in Pehle's own words, never in the desk's | Drops the field and asks again next read | S9 |
+| U8b | S9: an extracted field (reference no., date, amount) appears only in our agent's own words, never in the desk's | Drops the field and asks again next read | S9 |
 | U9 | S9: a read contradicts an earlier read or the money ("approved", then "we never got the bills") | **Human review; no state change on the claim** | Human resolves → S9/S10 |
 | U10 | S9: call not placed (pre-call veto, IVR dead end, no answer) | Falls back to email/portal | S9 |
 | U11 | S9: desk reads out a different claim number | Holds on our claim id, logs the mismatch, never takes that claim's status | S9 |
@@ -157,12 +157,12 @@ Status key:
 | `gate_each_call` | S9 | our API receives `conversation_id`, number → we return greeting + claim context, or 400 | call placed or vetoed (10s timeout) | our API slow → no call → U10 | dial without an active grant, outside hours, or to a number not on the desk's record | "Dynamic Variables & Dynamic Messages" | EXISTS·D |
 | `read_claim_state_by_call` | S9 | claim id, amount, filing date, claimant name | status read back and confirmed | vague → U7; wrong claim → U11; contradiction → U9 | treat a spoken "approved" as fact before money reconciles | Agent Builder prompt + guardrails | **EXISTS·V**: 8 chat tests on 25 Sep (clear, vague, wrong-claim, contradictory, data-fishing, Hinglish); 6 pass, 1 partial, 1 fail |
 | `extract_claim_status` | S9 | disposition field (approved / pending / rejected / paid / unclear) + `payout_date`, `reference_no` | `disposition_result` and `post_call_extraction_v2` JSON | vague desk → `unclear` → U7. **Found in testing:** `reference_no` was filled from *our own* question when the desk never confirmed it | record a value the counterparty didn't say; a field is kept only if the desk's own turn contains it (we check the transcript) | "Writing a Disposition Prompt"; Analytics Config | **EXISTS·V**: 2 tests to webhook.site, clear → `approved, 2026-09-30`; vague → `unclear` |
-| `handle_authority_challenge` | S9 | "who authorised you?" / "we don't talk to bots" | names the claimant, offers the written grant by email; on refusal, transfers to our ops number with the transcript | in our test, a default handoff promised a callback and ended the chat → U8 | promise a callback nobody owns | "Transfer to Agent": an LLM-judged transfer condition, per-route numbers and messages, "Send transcript on transfer" (seen configured, 25 Sep) | **PARTIAL**: the transfer exists; routing it to our human desk instead of the default promise is ours to configure and test |
+| `handle_authority_challenge` | S9 | "who authorised you?" / "we don't talk to bots" | names the claimant, offers the written grant by email; on refusal, transfers to our ops number with the transcript | in our tests, twice in chat and once on a real phone call, it said it was an AI calling on the claimant's behalf, promised that someone would call back, and ended the call. It never transferred → U8 | promise a callback nobody owns | "Transfer to Agent": an LLM-judged transfer condition, per-route numbers and messages, "Send transcript on transfer" (seen configured, 25 Sep) | **PARTIAL**: the transfer exists; routing it to our human desk instead of the default promise is ours to configure and test |
 | `receive_call_outcome` | S9 | webhook URL + method (+ header) | transcript with timestamps, disposition, `call_infra` call record, `rec_path` | duplicate delivery → key on `conversation_id` | act twice on one call | "Post-Call Trigger" (Update Agent) | **EXISTS·V**: fired on both tests |
 | `fetch_call_record` | S9, S12 | `conversationId` | timestamped turns + MP3 | 404 → call marked non-evidential | cite a call without its audio | "Get Conversation Statistics", "Get Conversation Audio" | EXISTS·D |
 | `disclose_recording` | S9 | greeting with disclosure + "on behalf of [claimant]" | disclosure in turn 1 of transcript | missing → call not used as evidence | continue recording after an objection | nothing built in | MUST BUILD (prompt + transcript check) |
 | `navigate_counterparty_ivr` | S9 | IVR path, claim number to key in | reach a person | menu changed → U10 | key in anything but the claim's own identifiers | nothing: DTMF is collection-only | MUST BUILD |
-| `place_chase_calls_at_scale` | S9 | many desks per day | calls | not self-serve | call a number not on record | "Trigger Test Call" (whitelisted, test only); campaign manager on request | PARTIAL |
+| `place_chase_calls_at_scale` | S9 | many desks per day | calls | not self-serve | call a number not on record | "Trigger Agent Call" (whitelisted, test only); campaign manager on request | PARTIAL: **a real call to a whitelisted phone verified 25 Sep**, with call logs; dialling many desks is not self-serve |
 | `verify_claimant_caller` | S10 | DTMF PIN/OTP | verified / not | wrong digits → WhatsApp | reveal status before verification | "DTMF Collection" | EXISTS·D |
 | `collect_missing_fact` | S4a, S10 | the one fact the query needs | captured value | unreachable → WhatsApp | ask for anything the query doesn't need | Variables, Dynamic Variables | EXISTS·D |
 | `speak_and_hear_indian_languages` | S9, S10 | text/audio; agents offer 12 Indian languages (incl. Odia, Assamese, Urdu), speech APIs 10 + Hinglish | audio / transcript | ≤3 languages per agent; Punjabi not offered for agents | clone a real person's voice | "Gnani Prisma v2.5" STT, "Gnani Timbre v2.5" TTS; agent language picker | **EXISTS·V**: APIs workspace used; agent language list seen. ₹27/hour STT, ₹27 per 10k TTS chars; a short test chat cost ~0.47 credits |
@@ -204,7 +204,7 @@ Status key:
 
 It also carries one routing field: "an assignment to X has been acknowledged; pay this claim to account Y."
 
-**Why it makes Pehle much more effective.** All three rails fail at the same point. Payments can see money but not claim state. Voice can only ask a person for it, and our tests showed why that is fragile: a desk that says "approved" and then "we never got the bills", or one that refuses to talk and triggers a callback promise we must then honour. And even a clean extraction can record a reference number that only our agent said and the desk never confirmed. Logistics can prove a packet arrived, not that the claim is complete. With the fourth rail:
+**Why it makes our agent much more effective.** All three rails fail at the same point. Payments can see money but not claim state. Voice can only ask a person for it, and our tests showed why that is fragile: a desk that says "approved" and then "we never got the bills", or one that refuses to talk and triggers a callback promise we must then honour. And even a clean extraction can record a reference number that only our agent said and the desk never confirmed. Logistics can prove a packet arrived, not that the claim is complete. With the fourth rail:
 - **S9** turns from a phone call into a read.
 - **S8** gets a real "complete filing" date. This is our Round 1 insight made provable: the settlement clock starts at complete filing, and today only the counterparty knows when that was.
 - **S11** gets routed payouts, so the recovery debit becomes a fallback rather than the default.
@@ -224,10 +224,10 @@ It is also inside Pine Labs, whose corporate-expense product sits in some employ
 
 ## Q6. Interface
 
-Five people touch Pehle. Each gets one surface, not a chatbot.
+Five people deal with our agent. Each gets one surface, not a chatbot.
 
 **1. The claimant** (a salaried employee with a travel backlog, or a patient home with the bills).
-- **Signup, once, about 6 minutes on the web:** KYC, bank check, one Aadhaar eSign (the grant to file in their name), an AA consent screen, and an AutoPay mandate approved in their own UPI app. Then one slider: "Auto-accept any advance of at least __%". After this, Pehle asks only when a query needs a fact from them.
+- **Signup, once, about 6 minutes on the web:** KYC, bank check, one Aadhaar eSign (the grant to file in their name), an AA consent screen, and an AutoPay mandate approved in their own UPI app. Then one slider: "Auto-accept any advance of at least __%". After this, our agent asks only when a query needs a fact from them.
 - **Sending bills:** forward to a personal email address, or send a photo or PDF on WhatsApp. Most people send nothing, because S2 finds the unfiled spend from their card/UPI debits.
 - **Offers:** "₹16,600 now; ₹1,300 more when Acme pays (our fee: ₹550)." Accepted automatically inside their band; one tap outside it.
 - **One status link per claim,** no login, no pings. A timeline shows **what the counterparty said** (grey, with date and source) **separately from what the money confirms** (green, with the UTR). A spoken "approved" never turns green.
@@ -261,6 +261,6 @@ Five people touch Pehle. Each gets one surface, not a chatbot.
 **CRED.** It holds the two things that are hard to get, and has just removed the conflict that stops everyone else:
 - **The claimant:** its members are the salaried, creditworthy people whose travel and expense claims make our cleanest wedge.
 - **Credit:** it has its own NBFC, NewTap Finance. Through CRED Cash, launched with L&T Finance in 2024, it co-lends to members in minutes. Our design needs a licensed lender behind the advance, and CRED already has one.
-- **No conflict:** our Round 1 test was "who has lending and users without underwriting its own paying customer?" RazorpayX fails it, because the employer is its client. CRED bought Happay, an expense platform, in 2021, but sold Happay's travel-and-expense business to MakeMyTrip in November 2024. It no longer sells to employers, so it can advance against an employer's unpaid reimbursement without judging a client.
+- **No conflict:** our Round 1 test was "who has lending and users without underwriting its own paying customer?" RazorpayX fails it, because the employer is its client. CRED bought Happay, an expense platform, in 2021, but sold Happay's travel-and-expense business to MakeMyTrip in November 2024. It no longer runs employers' expense software, so it can advance against an employer's unpaid reimbursement without judging a client.
 
 That sale is also what CRED lacks. When it let Happay's expense side go, it lost its view of claim state. It now has no way to know whether an employer has approved a claim, or an insurer has scheduled one. That gap is the fourth rail in Q5. The other gaps are the voice chase and a reconciled book of how fast each counterparty pays. Our design supplies all three.

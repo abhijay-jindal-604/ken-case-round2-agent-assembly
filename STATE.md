@@ -1,30 +1,40 @@
-# State as of 25 Sep 2026 (evening)
+# State as of 25 Sep 2026 (night): Round 2 SUBMITTED
 
-## Done
-- Round 1 handover brief (`handover-brief/`).
-- Round 2 context file (`round2/00-round2-context.md`): questions, judging, R1 answers, rail research (§10.1–§10.4),
-  Gnani walkthrough (§10.5) and agent chat tests (§10.5b).
-- Decisions (25 Sep):
-  - Q7: rename. The name was delegated to Claude, which picked **Pehle**; the product stays Paid Tuesday.
-  - Logistics revision: accepted.
-  - Q5: claim-state rail, to be built by Setu.
-  - Q8: CRED.
-  - The form shows no character limits.
-- **All 8 answers drafted: `round2/03-answers.md`.** It contains the Q3 state machine (S0–S13, U1–U19) and the Q4
-  table tied to state numbers, with verified, documented-only and must-build marked.
-- Web-checked: Happay's travel-and-expense business was sold to MakeMyTrip in Nov 2024, so Q8 was rewritten around
-  this. CRED owns NewTap Finance (an NBFC) and co-lends CRED Cash with L&T Finance. NHCX routes claims between
-  hospitals and payers and has been live since Jun 2024.
+## Round 2: submitted (25 Sep 2026, before 11:59 PM IST)
+- Final answers are in `round2/03-answers.md`. The form text was pasted from chat versions of it. Differences:
+  - All answers say "our agent". The name **Pehle** appears only in Q7.
+  - Q3 was submitted as plain-text lists, not tables and ASCII art. The diagram link was optional.
+  - Q4 was submitted as 33 template blocks (Name / Used at / Rail / ... / Build Status). The Build Status line uses
+    only Exists or Must Build. Partial rows are "Must Build (partial: ...)". The "move_money: No role" row was
+    folded into the Logistics heading. Off-rail items were an optional closing line.
+  - Q8 wording was softened to "no longer runs employers' expense software", since only the Happay sale is verified.
+- AI log link submitted: a Google Drive folder
+  (https://drive.google.com/drive/folders/112DDvJr1CqbUF8an8vNVys7wMmLlGQg3), which should hold the Claude Code
+  transcript and the Gnani test logs. The Gnani chat-demo link was suggested alongside it.
+- GitHub push (https://github.com/abhijay-jindal-604/ken-case-round2-agent-assembly): the user does it manually. The
+  Claude push was blocked. Not confirmed done. The local clone is in the old session scratchpad (commit 4d59771).
 
-- Merged Bhaskar's §10.6 (commit 4d59771): verified the disposition JSON, the webhook and Transfer to Agent; 12 agent
-  languages; Audit Logs empty. Q4/Q3/Q6 were updated from it (new U8b: a field only we said is dropped).
+## Decisions (user)
+- Q7: rename. The name was delegated to Claude, which picked **Pehle**; the product stays Paid Tuesday.
+- Logistics revision accepted: Delhivery has no role in the money; two bounded uses (originals pickup, proof of delivery).
+- Q5: counterparty claim-state rail, built by Setu.
+- Q8: CRED.
+- The form showed no character limits.
 
-## Design calls made while drafting (review)
-- Q2 is scored L3 (the money acts sit inside limits the lender and claimant set), not L4.
+## Design calls (Claude, accepted)
+- L3, not L4. The money acts sit inside limits the lender and claimant set.
 - The advance is non-recourse on the counterparty's decision and full-recourse on the claimant's own acts.
-- The claimant sets an auto-accept band once at signup, which keeps R1's "asks only at signup".
+- The auto-accept band is set once at signup.
 
-## Left (human)
-- Read `round2/03-answers.md`, change anything, then type it into the form before 11:59 PM IST.
-- Share the AI conversation log link(s).
-- Optional: a real Gnani phone call, to log the disposition JSON, webhook, recording and cost in §10.5b.
+## Evidence collected
+- 8 Gnani chat tests: 6 pass, 1 partial, 1 fail (§10.5b).
+- §10.6, from Bhaskar: webhook and disposition verified; Transfer to Agent exists; the extraction filled
+  `reference_no` from our own words (hence U8b); Audit Logs empty; 12 languages.
+- A real phone call (25 Sep) to a whitelisted phone worked and appeared in the call logs. "We don't talk to bots" gave a
+  callback promise and no transfer, the same as in chat. Not recorded: cost per call, recording availability, the
+  disposition JSON from the phone call.
+
+## If we reach the next round
+- Open items: configure Transfer to Agent routing to a real ops number and retest; cost per call; recording and
+  retention; whether Delhivery allows medical papers [CHECK]; a Q3 diagram as a proper page.
+- Context lives in `round2/00-round2-context.md`; answers in `round2/03-answers.md`.

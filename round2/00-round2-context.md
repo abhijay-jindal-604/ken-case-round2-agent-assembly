@@ -1616,3 +1616,9 @@ consistent with 10.5's "no retention, hash, signature" reading of the docs.
 **Not tested this session (time-boxed):** a real outbound phone call via "Trigger Agent Call" (only chat-mode
 tested), voice biometrics, campaigns/bulk dial, FAQ Answers tab, Transcriber tab detail, and the pre-call Dynamic
 Messages 200/400 gate in practice.
+
+**Real phone call, 25 Sep 2026 (evening):** the team placed a live call via Trigger Agent Call to a whitelisted phone and
+played the desk. The call worked and appeared in the call logs; the team judged its behaviour fit for the design. Cost per
+call, recording availability and the disposition values from the phone call were not written down.
+On the real call, "we don't talk to bots" got the same result as chat test D: the agent said it is an AI calling on the
+claimant's behalf, that someone would call back later and that it would notify them. It did not transfer.
