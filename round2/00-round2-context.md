@@ -1522,3 +1522,73 @@ Disposition). Finding for Q4/Q8: **agent-builder access is gated to organisation
 (2) the claim-state-by-phone-call idea depends on Gnani Agents, which we could not touch, so Q4 must state it as
 documented-only; (3) at ₹27/h STT the transcript cost of a status call is negligible. It is the telephony and agent
 layer that gates it.
+
+### 10.6 Gnani Agents walkthrough, 25 Sep 2026 (official email; live-tested, not just read)
+
+Account switched to an official/college email (bhaskarkumar.arya@iiitb.ac.in). Gnani Agents unblocked immediately —
+confirms 10.5's finding that the personal-email gate is the only barrier. Built and live-tested a real "claim status
+check" agent (`Claim Status Check Agent`, single-prompt type, Asia/Kolkata) end to end via the in-browser Chat Window
+test mode (2 conversations run; credits: 20 → 19.06, so ~0.47 credits per short test chat, not a phone call).
+
+**Disposition extraction + webhook — VERIFIED working, matches 10.5's F02 prediction exactly:**
+- Configured a DISPOSITION field (5 options: approved/pending/rejected/paid/unclear) plus two custom string fields
+  (`payout_date`, `reference_no`), each with its own extraction instruction, under one shared "Base Instructions" block.
+- Post-Call Trigger (webhook) config is a simple Method + URL (+ optional header) dialog; pointed it at a webhook.site
+  URL over POST.
+- **Test 1** (desk gives a clear answer: "approved, payout 30 Sep 2026") → webhook fired reliably, payload's
+  `disposition_result` **and** `post_call_extraction_v2` both carried `{"DISPOSITION":"approved","payout_date":"2026-09-30",
+  "reference_no":"CLM-2026-00417"}`; `STAGE_CODE` mirrors the disposition. The legacy `post_call_extraction` field
+  is literally `"NA"` — confirms 10.5's read of the docs ("Store API responses (Coming Soon)" vs the working v2 field).
+- **Test 2** (desk is vague, then still can't find the claim) → agent correctly followed the prompt's unhappy-path
+  branch (re-asks with the reference number once, then ends gracefully); disposition came back
+  `{"DISPOSITION":"unclear","payout_date":"","reference_no":"CLM-2026-00417"}`. Note the gap: `reference_no` was
+  populated even though the desk never confirmed it — it was pulled from the agent's own spoken question, not a
+  fact the counterparty verified. Real limitation for Q4: extraction doesn't reliably distinguish "we said it" from
+  "they confirmed it."
+- Both webhook posts included a full timestamped transcript, `call_infra.call_status` (CDR-style), `rec_path`
+  (present even for a chat-mode test, though no real audio exists for a chat call), `bot_type: "voice_outbound"`,
+  `environment: "production"`, `mode: "BOT_TESTING"`.
+
+**Conversation Flow tab — three features exist and are configurable (not just documented):**
+- **Dynamic Messages** and **Pre-call Variables** toggles exist (not deep-tested this session).
+- **Transfer to Agent** is a full feature, not just a checkbox: LLM-judged "Transfer Condition Prompt", one or more
+  phone-number routes (static number or variable-based), a per-route "Routing Condition Prompt" and custom
+  "Transfer Message", plus a "Send transcript on transfer" toggle to one or more destinations. Answers 10.5's open
+  "transfer-to-human fallback" item: it exists and is reasonably rich.
+
+**Languages (Agents workspace) — 12, wider than the APIs workspace's 10:** English (IN, primary), Hindi, Kannada,
+Tamil, Telugu, Bengali, Gujarati, Malayalam, Marathi, Odia, Assamese, Urdu. Everything else (English US/AU/GB/PH,
+Spanish, Punjabi, Italian, German, French, Filipino, Indonesian, Arabic, Japanese, Sinhala, Thai, Malay, Portuguese,
+Swedish, Burmese, Danish, Dutch) is greyed out "Unsupported" in the picker.
+
+**LLM Model tab:** four providers selectable — **Gnani** (default; models: Aion v3.2 "ultra low latency for Indic",
+Evon v2.0, Evon v2.0 Fast [default], Evon v2.0 Ultra), **Deepseek**, **Google**, **Open AI**. Knowledge-base
+attachment, temperature (0–1, default 0.5) and max-tokens (100–500, default 300) sliders sit alongside.
+
+**Conversation Logs / Call Insights — richer than the webhook payload:** each test call gets a detail page with a
+latency gauge (ms, colour-banded "Good"/etc.), "Reason of the call", auto-written "Result" and "Overview", a
+"Resolution" status (e.g. "Resolved"), the Post Call Extraction V2 fields, and **per-message sentiment + emotion
+tags** (e.g. "Positive" / "Trust") on the transcript. None of the sentiment/emotion/overview/resolution fields
+appeared in the webhook payload — they are UI-only today. Answers 10.5's "Call Insights in webhook or UI only" item:
+**both, but richer in the UI.**
+
+**Actions / MCP Tools tab:** pre-built integrations for SMS (Twilio), CRM (Zoho), Ticketing (Zoho), Email
+(MailChimp, SendGrid), plus a generic "Add Custom Integration" (Method + URL + key/value auth — a bare REST call the
+agent can invoke) and a separate "MCP Tools" sub-tab (MCP server support at the account level too, under Manage →
+Integrations → "Add MCP Server"). This is the mid-call tool-use path 10.5 could only read about from the docs.
+
+**Manage section (account-level, not per-agent):** Integrations, Whitelisted, Inbound Numbers, Voice Library, Audit
+Logs. **Inbound Numbers was empty with no visible self-serve "add number" flow** — inconclusive on native Indian
+numbers vs. Twilio import; likely requires a sales/provisioning step not exposed in this UI. **Audit Logs page
+exists but showed 0 logs** despite creating the agent, saving the config three times, and running two test calls in
+this session — either it only tracks a narrower set of actions (e.g. integrations, whitelist changes) or there is a
+lag; either way, "audit log" cannot be claimed as verified-working for agent-config changes.
+
+**Voice Persona tab:** reusable named personas (voice, gender, TTS provider/rate), a "Caching" toggle (serves cached
+audio for common phrases instead of regenerating — latency optimisation), and an "Ambient Sound" toggle. No
+recording/retention toggle found anywhere in the agent config — recording behaviour remains undocumented-in-UI,
+consistent with 10.5's "no retention, hash, signature" reading of the docs.
+
+**Not tested this session (time-boxed):** a real outbound phone call via "Trigger Agent Call" (only chat-mode
+tested), voice biometrics, campaigns/bulk dial, FAQ Answers tab, Transcriber tab detail, and the pre-call Dynamic
+Messages 200/400 gate in practice.

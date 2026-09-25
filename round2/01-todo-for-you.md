@@ -2,12 +2,14 @@
 
 Deadline: **Fri 25 Sep 2026, 11:59 PM IST.** Findings from the Gnani walkthrough are in `00-round2-context.md` §10.5.
 
-## 1. Gnani Agents (blocked: personal email is rejected). Pick ONE; skip if under ~2 hours to the deadline
-- [ ] Sign in to https://app.gnani.ai with an **official / college / company email** (not Gmail). Then tell Claude
-      "drive Gnani Agents" and it runs the checklist (languages, LLM list, recording, transfer, dispositions, webhook test).
-- [ ] OR email hello-inya@gnani.site: ask for Agents access for the Ken Case Competition, from the email you used.
-- [ ] OR skip. Q4 marks the Agents items "documented, not verified; personal emails are blocked".
-      Say so in the answer. Judges value honest limits.
+## 1. Gnani Agents — DONE, 25 Sep, ~5PM (§10.6 in context file)
+- [x] Signed in with official email (bhaskarkumar.arya@iiitb.ac.in); Gnani Agents unblocked immediately.
+- [x] Built a real "claim status check" agent, ran 2 live chat-mode tests (clear answer + vague/unclear answer).
+      Disposition extraction + post-call webhook both verified against webhook.site — full JSON payloads captured.
+- [x] Confirmed: Transfer-to-Agent, 12 languages, 4 LLM providers, rich Conversation Logs (latency/sentiment/
+      emotion), Actions/MCP Tools (Twilio/Zoho/MailChimp/SendGrid + custom REST + MCP server).
+- [ ] Not tested (optional, if time remains): real phone call via Trigger Agent Call, voice biometrics,
+      campaigns/bulk dial, Dynamic Messages 200/400 gate in practice.
 
 ## 2. Paste into the context file (§2, "Still to paste in")
 - [ ] The FAQ answers, especially "Our agent needs something that does not exist. Do we lose marks?" and "Do we

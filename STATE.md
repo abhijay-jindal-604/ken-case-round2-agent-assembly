@@ -8,6 +8,16 @@
 - Gnani platform walkthrough, as far as the account allowed (§10.5): the Gnani APIs workspace works (STT Gnani Prisma
   V2.5, TTS Gnani Timbre v2.5 Beta, cloning, Rs 27/h STT, Rs 27 per 10k TTS chars, 60 req/min, 20 concurrent WS).
   Gnani Agents rejected a personal Gmail ("Unsupported Email Type"), so agent features were not verified via that account.
+- Gnani Agents unblocked with an official email; live-tested end to end (§10.6). Built and ran a real "claim status
+  check" agent via the in-browser chat test mode, twice (clear answer + vague/unclear answer). Disposition extraction
+  and the post-call webhook both verified working against webhook.site: `disposition_result` /
+  `post_call_extraction_v2` came back correctly structured both times, including the `unclear` branch. Also confirmed:
+  Transfer-to-Agent (real feature, not just a toggle), 12 supported languages, 4 LLM providers (Gnani/Deepseek/
+  Google/OpenAI), rich Conversation Logs (latency, sentiment, emotion, auto-summary — richer than the webhook),
+  Actions/MCP Tools (Twilio/Zoho/MailChimp/SendGrid prebuilt + custom REST integration + MCP server support). Gaps
+  found: Audit Logs page exists but logged 0 entries for our session's agent creation/saves/test calls; Inbound
+  Numbers had no visible self-serve "add number" flow; no recording/retention toggle found anywhere in the agent
+  config. Not tested: real phone call (only chat-mode), voice biometrics, campaigns/bulk dial.
 
 ## Not started: the eight answers
 1. Lock the Q3 state machine (from the §7 skeleton plus the §10.4 changes: S0 objects, S4 physical branch, S8
@@ -17,13 +27,10 @@
 4. Check the form's character limits; final pass for sameness with the AI baseline; attach the AI-conversation log link.
 
 ## Open items for the human
-- Test Gnani agent access (the user reports agent calls partly working in another browser). Priority tests:
-  1. Claim-status call: agent asks a desk for claim status, disposition emits JSON (status, payout_date, reference_no),
-     post-call webhook to webhook.site; try normal, vague and contradictory answers; save payload.
-  2. Pre-call gate (Dynamic Messages 200/400) exists in UI?
-  3. Languages per agent, LLM list, recording on/off + retention + MP3, transfer-to-human fallback, Call Insights in webhook or UI only.
-  4. Campaigns/bulk, production deployment requirements, Indian numbers in-app vs Twilio import, cost per call/minute.
-  5. "After API Call Variables" working? Voice biometrics present?
+- Gnani Agents walkthrough done (§10.6) — see "Not tested" list there for what's left if there's time: a real phone
+  call via Trigger Agent Call (only chat-mode tested), voice biometrics, campaigns/bulk dial, the pre-call Dynamic
+  Messages 200/400 gate in practice, FAQ Answers tab, Transcriber tab detail, cost-per-minute for a real voice call
+  (chat-mode test cost ~0.47 credits each, but that's not the same meter as a phone call).
 - Paste into context §2: FAQ answers, "Getting your money back" opening text, Competition Updates, per-question character limits.
 - Evidence: 2-3 short consented conversations (T&E claimant, finance/HR desk: do they still need physical originals?, health claimant).
 - Optional: Delhivery Maps Address Verification screenshots; email lastmile-integration@delhivery.com.
